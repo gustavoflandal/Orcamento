@@ -1,3 +1,44 @@
+// Importa parcelas não pagas no intervalo de datas
+exports.importarParcelasProximas = async (req, res, next) => {
+  try {
+    const { dataInicio, dataFinal } = req.body;
+    if (!dataInicio || !dataFinal) {
+      return res.status(400).json({ mensagem: 'Intervalo de datas obrigatório.' });
+    }
+    // Busca parcelas não pagas no intervalo
+    const [parcelas] = await pool.query(
+      `SELECT p.*, dr.descricao as despesa_descricao, dr.id_categoria, dr.id_usuario
+       FROM parcelas p
+       INNER JOIN despesas_recorrentes dr ON p.id_despesa_recorrente = dr.id
+       WHERE p.status = 'Aberto'
+         AND p.data_vencimento BETWEEN ? AND ?
+         AND dr.id_usuario = ?`,
+      [dataInicio, dataFinal, req.user.id]
+    );
+    if (!parcelas.length) {
+      return res.json({ mensagem: 'Nenhuma parcela encontrada para importar.' });
+    }
+    let importadas = 0;
+    for (const parcela of parcelas) {
+      // Verifica se já existe operação vinculada à parcela
+      const [ops] = await pool.query(
+        'SELECT id FROM operacoes WHERE id_parcela = ? AND id_usuario = ?',
+        [parcela.id, req.user.id]
+      );
+      if (ops.length === 0) {
+        // Cria operação vinculada à parcela
+        await pool.query(
+          'INSERT INTO operacoes (data, descricao, id_categoria, valor, id_usuario, status, id_parcela) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [parcela.data_vencimento, `Parcela ${parcela.id} - ${parcela.despesa_descricao}`, parcela.id_categoria, parcela.valor, req.user.id, 'Aberto', parcela.id]
+        );
+        importadas++;
+      }
+    }
+    res.json({ mensagem: `${importadas} parcela(s) importada(s) com sucesso.` });
+  } catch (err) {
+    next(err);
+  }
+};
 const operacaoModel = require('../models/operacaoModel');
 const categoriaModel = require('../models/categoriaModel');
 const pool = require('../config/db');
@@ -73,6 +114,12 @@ exports.criar = async (req, res, next) => {
 
 exports.atualizar = async (req, res, next) => {
   try {
+    // Verifica se a operação está paga
+    const op = await operacaoModel.obter(req.params.id, req.user.id);
+    if (!op) return res.status(404).json({ error: 'Operação não encontrada.' });
+    if (op.status === 'Pago') {
+      return res.status(403).json({ error: 'Não é permitido editar uma operação já paga.' });
+    }
     const { data, descricao, id_categoria, valor } = req.body;
     const [dia, mes, ano] = data.split('/');
     const dataISO = `${ano}-${mes}-${dia}`;

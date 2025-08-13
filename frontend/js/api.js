@@ -47,8 +47,9 @@ const api = {
     criar: (body) => apiFetch('/operacoes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
     atualizar: (id, body) => apiFetch(`/operacoes/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
     excluir: (id) => apiFetch(`/operacoes/${id}`, { method: 'DELETE' }),
-  pagar: (id) => apiFetch(`/operacoes/${id}/pagar`, { method: 'PUT' }),
-  estornar: (id) => apiFetch(`/operacoes/${id}/estornar`, { method: 'PUT' })
+    pagar: (id) => apiFetch(`/operacoes/${id}/pagar`, { method: 'PUT' }),
+    estornar: (id) => apiFetch(`/operacoes/${id}/estornar`, { method: 'PUT' }),
+    importarParcelas: (body) => apiFetch('/operacoes/importar-parcelas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
   },
   despesas: {
     listar: () => apiFetch('/despesas-recorrentes'),

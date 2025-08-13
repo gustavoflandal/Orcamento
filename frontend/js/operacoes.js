@@ -7,6 +7,28 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('novaOperacaoBtn').addEventListener('click', abrirModalOperacao);
   document.getElementById('filtrarOperacoesBtn').addEventListener('click', filtrarOperacoes);
   document.getElementById('limparFiltrosBtn').addEventListener('click', limparFiltros);
+  document.getElementById('importarParcelasBtn').addEventListener('click', importarParcelasProximas);
+// Função para importar parcelas próximas do vencimento
+async function importarParcelasProximas() {
+  const hoje = new Date();
+  const dataImportacao = hoje.toISOString().slice(0, 10); // yyyy-mm-dd
+  // Calcula intervalo de 10 dias antes e depois
+  const dataInicio = new Date(hoje);
+  dataInicio.setDate(hoje.getDate() - 10);
+  const dataFinal = new Date(hoje);
+  dataFinal.setDate(hoje.getDate() + 10);
+  const dataInicioStr = dataInicio.toISOString().slice(0, 10);
+  const dataFinalStr = dataFinal.toISOString().slice(0, 10);
+  try {
+    // Chama endpoint para importar parcelas não pagas nesse intervalo
+    const resultado = await api.operacoes.importarParcelas({ dataInicio: dataInicioStr, dataFinal: dataFinalStr });
+    showToast(resultado.mensagem || 'Parcelas importadas com sucesso!', 'sucesso');
+    carregarOperacoes();
+  } catch (err) {
+    showToast('Erro ao importar parcelas.', 'erro');
+    console.error('Erro ao importar parcelas:', err);
+  }
+}
 });
 
 // Função para formatar data
@@ -52,6 +74,7 @@ function criarLinhaOperacao(op, mapIdNome, mapCategoriaTipo) {
   const tipo = tipoCategoria === 'Crédito' ? 'C' : 'D';
   
   const tr = document.createElement('tr');
+  const isPago = (op.status === 'Pago' || op.status === 'pago');
   tr.innerHTML = `
     <td>${dataFormatada}</td>
     <td>${op.descricao}</td>
@@ -59,9 +82,9 @@ function criarLinhaOperacao(op, mapIdNome, mapCategoriaTipo) {
     <td style="text-align:center;">${tipo}</td>
     <td>${valor}</td>
     <td class="${saldoNum < 0 ? 'saldo-negativo' : ''}">${saldo}</td>
-    <td><input type="checkbox" ${(op.status === 'Pago' || op.status === 'pago') ? 'checked' : ''} onclick="marcarPago(${op.id}, this.checked)"></td>
+    <td><input type="checkbox" ${isPago ? 'checked' : ''} onclick="marcarPago(${op.id}, this.checked)"></td>
     <td>
-      <button class="btn-primary" onclick="editarOperacao(${op.id})"><i class="fa fa-edit"></i></button>
+      <button class="btn-editar-operacao${isPago ? ' btn-editar-desabilitado' : ''}" onclick="${isPago ? '' : `editarOperacao(${op.id})`}" ${isPago ? 'disabled' : ''}><i class="fa fa-edit"></i></button>
       <button class="btn-danger" onclick="excluirOperacao(${op.id})"><i class="fa fa-trash"></i></button>
     </td>
   `;

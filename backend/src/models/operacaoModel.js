@@ -52,6 +52,6 @@ module.exports = {
   },
   
   async estornar(id, id_usuario) {
-    await pool.query("UPDATE operacoes SET status='Pendente' WHERE id=? AND id_usuario=?", [id, id_usuario]);
+    await pool.query("UPDATE operacoes SET status='Aberto' WHERE id=? AND id_usuario=?", [id, id_usuario]);
   }
 };

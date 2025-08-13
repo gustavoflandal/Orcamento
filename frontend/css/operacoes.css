@@ -1,3 +1,49 @@
+.btn-editar-operacao {
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 0.3rem;
+  transition: background 0.2s;
+}
+.btn-editar-operacao:hover:not(:disabled) {
+  background-color: #217dbb;
+}
+.btn-editar-desabilitado {
+  background-color: #bdbdbd !important;
+  color: #666 !important;
+  cursor: not-allowed !important;
+  border: none;
+}
+.operacoes-header-btns {
+  display: flex;
+  gap: 1rem;
+  margin-left: auto;
+}
+.btn-importar {
+  background-color: #ffc107;
+  color: #212529;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  transition: background 0.2s;
+}
+.btn-importar:hover {
+  background-color: #e0a800;
+}
 .filtro-bloco {
   display: flex;
   align-items: center;

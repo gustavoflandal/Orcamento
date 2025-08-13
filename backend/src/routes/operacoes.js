@@ -26,4 +26,6 @@ router.delete('/:id', param('id').isInt(), validate, operacaoController.deletar)
 router.put('/:id/pagar', param('id').isInt(), validate, operacaoController.pagar);
 router.put('/:id/estornar', param('id').isInt(), validate, operacaoController.estornar);
 
+// Importar parcelas próximas do vencimento
+router.post('/importar-parcelas', auth, operacaoController.importarParcelasProximas);
 module.exports = router;
