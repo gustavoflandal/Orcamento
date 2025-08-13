@@ -1,0 +1,81 @@
+.filtro-bloco {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.saldo-negativo {
+  color: #e74c3c;
+  font-weight: bold;
+}
+/* operacoes.css */
+.operacoes-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.operacoes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.operacoes-filtros {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.operacoes-filtros label {
+  font-weight: 500;
+  color: #495057;
+  white-space: nowrap;
+}
+
+.operacoes-filtros input[type="date"],
+.operacoes-filtros select {
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+.operacoes-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.operacoes-table th, .operacoes-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+.operacoes-table th {
+  background: #3498db;
+  color: #fff;
+}
+.operacoes-table tr:last-child td {
+  border-bottom: none;
+}

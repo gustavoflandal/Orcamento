@@ -1,0 +1,31 @@
+/* categorias.css */
+.categorias-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.categorias-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.categorias-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.categorias-table th, .categorias-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+.categorias-table th {
+  background: #3498db;
+  color: #fff;
+}
+.categorias-table tr:last-child td {
+  border-bottom: none;
+}

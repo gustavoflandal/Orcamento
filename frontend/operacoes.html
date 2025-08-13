@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Operações | Orçamento Doméstico</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/operacoes.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <span class="logo"><i class="fa-solid fa-wallet"></i> Orçamento</span>
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="categorias.html">Categorias</a></li>
+        <li><a href="operacoes.html" class="active">Operações</a></li>
+        <li><a href="despesas.html">Despesas Recorrentes</a></li>
+        <li><a href="#" id="logoutBtn"><i class="fa-solid fa-sign-out-alt"></i> Sair</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="operacoes-main">
+    <section class="operacoes-header">
+      <h2>Operações</h2>
+      <button id="novaOperacaoBtn" class="btn-primary"><i class="fa-solid fa-plus"></i> Nova Operação</button>
+    </section>
+    <section class="operacoes-filtros">
+      <div class="filtro-bloco">
+        <label for="filtroDataInicio">Data Início:</label>
+        <input type="date" id="filtroDataInicio">
+      </div>
+      <div class="filtro-bloco">
+        <label for="filtroDataFinal">Data Final:</label>
+        <input type="date" id="filtroDataFinal">
+      </div>
+      <div class="filtro-bloco">
+        <label for="filtroCategoria">Categoria:</label>
+        <select id="filtroCategoria"></select>
+      </div>
+      <button id="filtrarOperacoesBtn" class="btn-primary"><i class="fa-solid fa-filter"></i> Filtrar</button>
+      <button id="limparFiltrosBtn" class="btn-secondary"><i class="fa-solid fa-times"></i> Limpar</button>
+    </section>
+    <section>
+      <table class="operacoes-table">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Descrição</th>
+            <th>Categoria</th>
+            <th>Tipo</th>
+            <th>Valor</th>
+            <th>Saldo</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="operacoesGrid">
+          <!-- Conteúdo dinâmico -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <div id="modalOperacao" class="modal hidden"></div>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/operacoes.js"></script>
+</body>
+</html>

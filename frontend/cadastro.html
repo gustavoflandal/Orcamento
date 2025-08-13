@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro | Orçamento Doméstico</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body class="login-bg">
+  <div class="login-container">
+    <h1><i class="fa-solid fa-user-plus"></i> Cadastro</h1>
+    <form id="cadastroForm">
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="login">Login</label>
+        <input type="text" id="login" name="login" required>
+      </div>
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" required>
+      </div>
+      <div class="form-group">
+        <label for="confirmarSenha">Confirmar Senha</label>
+        <input type="password" id="confirmarSenha" name="confirmarSenha" required>
+      </div>
+      <button type="submit" class="btn-primary">Cadastrar</button>
+      <div class="form-footer">
+        <a href="index.html">Já tenho conta</a>
+      </div>
+      <div id="cadastroError" class="error-message"></div>
+    </form>
+  </div>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

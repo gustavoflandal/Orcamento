@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Despesas Recorrentes | Orçamento Doméstico</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/despesas.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <span class="logo"><i class="fa-solid fa-wallet"></i> Orçamento</span>
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="categorias.html">Categorias</a></li>
+        <li><a href="operacoes.html">Operações</a></li>
+        <li><a href="despesas.html" class="active">Despesas Recorrentes</a></li>
+        <li><a href="#" id="logoutBtn"><i class="fa-solid fa-sign-out-alt"></i> Sair</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="despesas-main">
+    <section class="despesas-header">
+      <h2>Despesas Recorrentes</h2>
+  <button id="novaDespesaBtn" class="btn-primary"><i class="fa-solid fa-plus"></i> Nova Despesa</button>
+    </section>
+    <section>
+      <table class="despesas-table">
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>Valor Total</th>
+            <th>Parcelas</th>
+            <th>1º Vencimento</th>
+            <th>Dias de Intervalo</th>
+            <th>Categoria</th>
+            <th>Saldo a Pagar</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="despesasGrid">
+          <!-- Conteúdo dinâmico -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <div id="modalDespesa" class="modal hidden"></div>
+  <div id="modalParcelas" class="modal hidden"></div>
+  <div id="modalEdicaoDespesa" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-button" id="closeModalEdicao">&times;</span>
+      <h3>Editar Despesa Recorrente</h3>
+      <form id="formEdicaoDespesa">
+        <input type="text" name="descricao" id="editDespesa_descricao" placeholder="Descrição" required maxlength="100"><br>
+        <input type="number" name="valor_total" id="editDespesa_valor_total" placeholder="Valor Total" required step="0.01" min="0.01"><br>
+        <input type="number" name="numero_parcelas" id="editDespesa_numero_parcelas" placeholder="Nº Parcelas" required min="1"><br>
+        <input type="date" name="primeiro_vencimento" id="editDespesa_primeiro_vencimento" required><br>
+        <input type="number" name="periodo" id="editDespesa_periodo" placeholder="Dias de intervalo entre parcelas" required min="1"><br>
+        <select name="id_categoria" id="editDespesa_id_categoria" required>
+          <option value="">Selecione a Categoria</option>
+          <!-- Opções dinâmicas -->
+        </select><br>
+        <div id="edicaoErro" class="error-message"></div>
+        <button type="submit" class="btn-primary">Salvar</button>
+        <button type="button" class="btn-danger" id="cancelEdicaoBtn">Cancelar</button>
+      </form>
+    </div>
+  </div>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/realtime.js"></script>
+</body>
+<script src="js/despesas.js"></script>
+</html>

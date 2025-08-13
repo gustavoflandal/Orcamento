@@ -1,0 +1,50 @@
+/* despesas.css */
+.despesas-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.despesas-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+.despesas-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.despesas-table th, .despesas-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+.despesas-table th {
+  background: #3498db;
+  color: #fff;
+}
+.despesas-table tr:last-child td {
+  border-bottom: none;
+}
+
+.btn-edit {
+  background-color: #2ecc71;
+  color: #fff;
+}
+
+.btn-edit:hover {
+  background-color: #219150;
+}
+
+.btn-info {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.btn-info:hover {
+  background-color: #217dbb;
+}

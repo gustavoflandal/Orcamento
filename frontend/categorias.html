@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Categorias | Orçamento Doméstico</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/categorias.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <span class="logo"><i class="fa-solid fa-wallet"></i> Orçamento</span>
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="categorias.html" class="active">Categorias</a></li>
+        <li><a href="operacoes.html">Operações</a></li>
+        <li><a href="despesas.html">Despesas Recorrentes</a></li>
+        <li><a href="#" id="logoutBtn"><i class="fa-solid fa-sign-out-alt"></i> Sair</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="categorias-main">
+    <section class="categorias-header">
+      <h2>Categorias</h2>
+      <button id="novaCategoriaBtn" class="btn-primary"><i class="fa-solid fa-plus"></i> Nova Categoria</button>
+    </section>
+    <section>
+      <table class="categorias-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Tipo</th>
+            <th>Cor</th>
+            <th>Categoria Pai</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="categoriasGrid">
+          <!-- Conteúdo dinâmico -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <div id="modalCategoria" class="modal hidden"></div>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/categorias.js"></script>
+</body>
+</html>
