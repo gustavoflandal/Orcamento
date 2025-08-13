@@ -90,7 +90,7 @@
 }
 
 .btn-secondary {
-  background-color: #6c757d;
+  background-color: #e74c3c;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -103,7 +103,7 @@
 }
 
 .btn-secondary:hover {
-  background-color: #5a6268;
+  background-color: #c0392b;
 }
 .operacoes-table {
   width: 100%;

@@ -14,17 +14,35 @@ async function carregarDashboard() {
     // Se backend aceitar filtros, adicione query string
     // let url = `/dashboard?inicio=${dataInicio}&fim=${dataFim}`;
     // const data = await api.dashboard.todos(url);
-    const data = await api.dashboard.obter();
-    if (!data) return;
-    renderPizza(data.pizza);
-    renderBarras(data.barras);
-    renderLinha(data.linha);
+  const data = await api.dashboard.obter();
+  if (!data) return;
+  renderPizzaReceita(data.pizza);
+  renderPizza(data.pizza);
+  renderBarras(data.barras);
+  renderLinha(data.linha);
   } catch (err) {
     showToast('Erro ao carregar dashboard.', 'erro');
   }
 }
 
-let pizzaChart, barraChart, linhaChart;
+let pizzaReceitaChart, pizzaChart, barraChart, linhaChart;
+function renderPizzaReceita(pizza) {
+  const ctx = document.getElementById('pizzaReceitaChart').getContext('2d');
+  if (pizzaReceitaChart) pizzaReceitaChart.destroy();
+  // Considerar apenas receitas (valores positivos ou tipo 'Crédito')
+  const receitas = pizza.filter(c => (c.total > 0) || (c.tipo && c.tipo.toLowerCase().startsWith('c')));
+  pizzaReceitaChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: receitas.map(c => c.nome),
+      datasets: [{
+        data: receitas.map(c => c.total),
+        backgroundColor: receitas.map(c => c.cor)
+      }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } } }
+  });
+}
 function renderPizza(pizza) {
   const ctx = document.getElementById('pizzaChart').getContext('2d');
   if (pizzaChart) pizzaChart.destroy();
