@@ -23,19 +23,18 @@ async function processarParcelasVencidas() {
     winston.info(`Encontradas ${parcelas.length} parcelas para processar`);
     
     for (const parcela of parcelas) {
-      // Inserir a parcela como operação
+      // Inserir a parcela como operação, incluindo numero_parcela na descrição
       await pool.query(`
         INSERT INTO operacoes (data, descricao, id_categoria, valor, id_usuario, status, tipo)
         VALUES (?, ?, ?, ?, ?, 'Aberto', 'Débito')
       `, [
-        parcela.data_vencimento, 
-        `${parcela.descricao} - Parcela ${parcela.id}`, 
-        parcela.id_categoria, 
-        parcela.valor, 
+        parcela.data_vencimento,
+        `${parcela.descricao} - Parcela ${parcela.numero_parcela}`,
+        parcela.id_categoria,
+        parcela.valor,
         parcela.id_usuario
       ]);
-      
-      winston.info(`Parcela ${parcela.id} inserida em operações`);
+      winston.info(`Parcela ${parcela.id} (número ${parcela.numero_parcela}) inserida em operações`);
     }
     
     winston.info('Processamento de parcelas concluído');

@@ -40,6 +40,19 @@
   background-color: #219150;
 }
 
+.btn-edit.disabled,
+.btn-danger.disabled {
+  background-color: #bdc3c7;
+  color: #7f8c8d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-edit.disabled:hover,
+.btn-danger.disabled:hover {
+  background-color: #bdc3c7;
+}
+
 .btn-info {
   background-color: #3498db;
   color: #fff;

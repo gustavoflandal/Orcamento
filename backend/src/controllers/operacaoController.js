@@ -26,10 +26,10 @@ exports.importarParcelasProximas = async (req, res, next) => {
         [parcela.id, req.user.id]
       );
       if (ops.length === 0) {
-        // Cria operação vinculada à parcela
+        // Cria operação vinculada à parcela, incluindo o número da parcela
         await pool.query(
           'INSERT INTO operacoes (data, descricao, id_categoria, valor, id_usuario, status, id_parcela) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          [parcela.data_vencimento, `Parcela ${parcela.id} - ${parcela.despesa_descricao}`, parcela.id_categoria, parcela.valor, req.user.id, 'Aberto', parcela.id]
+          [parcela.data_vencimento, `Parcela ${parcela.numero_parcela} - ${parcela.despesa_descricao}`, parcela.id_categoria, parcela.valor, req.user.id, 'Aberto', parcela.id]
         );
         importadas++;
       }
@@ -141,70 +141,87 @@ exports.deletar = async (req, res, next) => {
 
 exports.pagar = async (req, res, next) => {
   try {
+    // Buscar a operação antes de marcar como paga
+    const operacao = await operacaoModel.obter(req.params.id, req.user.id);
+    if (!operacao) {
+      return res.status(404).json({ error: 'Operação não encontrada.' });
+    }
+
+    // Marcar operação como paga
     await operacaoModel.pagar(req.params.id, req.user.id);
     
-    // Verificar se a operação está vinculada a uma parcela e sincronizar status
-    const operacao = await operacaoModel.obter(req.params.id, req.user.id);
-    if (operacao && operacao.descricao.includes('Parcela')) {
-      // Extrair ID da parcela da descrição
+    // Verificar se a operação está vinculada a uma parcela
+    if (operacao.id_parcela) {
+      // Atualizar status da parcela usando id_parcela
+      console.log('[DEBUG] Atualizando status da parcela:', operacao.id_parcela);
+      await pool.query('UPDATE parcelas SET status = ? WHERE id = ?', ['Pago', operacao.id_parcela]);
+    } else if (operacao.descricao && operacao.descricao.includes('Parcela')) {
+      // Fallback: tentar extrair ID da parcela da descrição
       const match = operacao.descricao.match(/Parcela (\d+)/);
       if (match) {
-        const parcelaId = match[1];
-        await pool.query('UPDATE parcelas SET status = ? WHERE id = ?', ['Pago', parcelaId]);
-        
-        // Calcular novo saldo e notificar mudança
-        const [parcelaInfo] = await pool.query(`
-          SELECT p.id_despesa_recorrente, dr.valor_total,
-          (SELECT COALESCE(SUM(valor), 0) FROM parcelas WHERE id_despesa_recorrente = p.id_despesa_recorrente AND status = 'Pago') as valor_pago
-          FROM parcelas p
-          INNER JOIN despesas_recorrentes dr ON p.id_despesa_recorrente = dr.id
-          WHERE p.id = ?
-        `, [parcelaId]);
-        
-        if (parcelaInfo.length > 0) {
-          const novoSaldo = parcelaInfo[0].valor_total - parcelaInfo[0].valor_pago;
-          // notificarMudancaParcela(parcelaInfo[0].id_despesa_recorrente, novoSaldo);
+        const numeroMatch = operacao.descricao.match(/Parcela (\d+) -/);
+        if (numeroMatch) {
+          const numeroParcela = numeroMatch[1];
+          console.log('[DEBUG] Tentando atualizar parcela pelo número:', numeroParcela);
+          // Buscar a parcela pelo número e descrição
+          const [parcelas] = await pool.query(`
+            SELECT p.id FROM parcelas p
+            INNER JOIN despesas_recorrentes dr ON p.id_despesa_recorrente = dr.id
+            WHERE p.numero_parcela = ? AND dr.id_usuario = ?
+          `, [numeroParcela, req.user.id]);
+          
+          if (parcelas.length > 0) {
+            await pool.query('UPDATE parcelas SET status = ? WHERE id = ?', ['Pago', parcelas[0].id]);
+          }
         }
       }
     }
     
     res.json({ ok: true });
   } catch (err) {
+    console.error('[ERRO] Falha ao pagar operação:', err);
     next(err);
   }
 };
 
 exports.estornar = async (req, res, next) => {
   try {
+    // Buscar a operação antes de estornar
+    const operacao = await operacaoModel.obter(req.params.id, req.user.id);
+    if (!operacao) {
+      return res.status(404).json({ error: 'Operação não encontrada.' });
+    }
+
+    // Estornar operação
     await operacaoModel.estornar(req.params.id, req.user.id);
     
-    // Verificar se a operação está vinculada a uma parcela e sincronizar status
-    const operacao = await operacaoModel.obter(req.params.id, req.user.id);
-    if (operacao && operacao.descricao.includes('Parcela')) {
-      // Extrair ID da parcela da descrição
-      const match = operacao.descricao.match(/Parcela (\d+)/);
-      if (match) {
-        const parcelaId = match[1];
-        await pool.query('UPDATE parcelas SET status = ? WHERE id = ?', ['Aberto', parcelaId]);
-        
-        // Calcular novo saldo e notificar mudança
-        const [parcelaInfo] = await pool.query(`
-          SELECT p.id_despesa_recorrente, dr.valor_total,
-          (SELECT COALESCE(SUM(valor), 0) FROM parcelas WHERE id_despesa_recorrente = p.id_despesa_recorrente AND status = 'Pago') as valor_pago
-          FROM parcelas p
+    // Verificar se a operação está vinculada a uma parcela
+    if (operacao.id_parcela) {
+      // Atualizar status da parcela usando id_parcela
+      console.log('[DEBUG] Estornando status da parcela:', operacao.id_parcela);
+      await pool.query('UPDATE parcelas SET status = ? WHERE id = ?', ['Aberto', operacao.id_parcela]);
+    } else if (operacao.descricao && operacao.descricao.includes('Parcela')) {
+      // Fallback: tentar extrair ID da parcela da descrição
+      const numeroMatch = operacao.descricao.match(/Parcela (\d+) -/);
+      if (numeroMatch) {
+        const numeroParcela = numeroMatch[1];
+        console.log('[DEBUG] Tentando estornar parcela pelo número:', numeroParcela);
+        // Buscar a parcela pelo número e descrição
+        const [parcelas] = await pool.query(`
+          SELECT p.id FROM parcelas p
           INNER JOIN despesas_recorrentes dr ON p.id_despesa_recorrente = dr.id
-          WHERE p.id = ?
-        `, [parcelaId]);
+          WHERE p.numero_parcela = ? AND dr.id_usuario = ?
+        `, [numeroParcela, req.user.id]);
         
-        if (parcelaInfo.length > 0) {
-          const novoSaldo = parcelaInfo[0].valor_total - parcelaInfo[0].valor_pago;
-          // notificarMudancaParcela(parcelaInfo[0].id_despesa_recorrente, novoSaldo);
+        if (parcelas.length > 0) {
+          await pool.query('UPDATE parcelas SET status = ? WHERE id = ?', ['Aberto', parcelas[0].id]);
         }
       }
     }
     
     res.json({ ok: true });
   } catch (err) {
+    console.error('[ERRO] Falha ao estornar operação:', err);
     next(err);
   }
 };

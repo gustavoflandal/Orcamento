@@ -16,7 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
     gridEl.addEventListener('click', async (e) => {
       const btn = e.target.closest && e.target.closest('.edit-btn');
       if (!btn || !gridEl.contains(btn)) return;
+      
+      // Verificar se o botão está desabilitado
+      if (btn.disabled || btn.classList.contains('disabled')) {
+        showToast('Despesa não pode ser editada. Já existem parcelas pagas', 'erro');
+        return;
+      }
+      
       const id = btn.dataset.id;
+      if (!id) return;
+      
+      // Verificação dupla do status das parcelas
       const parcelas = await api.despesas.parcelas(id);
       const hasPaid = parcelas.some(p => p.status === 'Pago');
       if (hasPaid) {
@@ -47,6 +57,15 @@ async function carregarDespesas() {
     grid.innerHTML = '';
     for (const desp of despesas) {
       const saldoPagar = await calcularSaldoPagar(desp);
+      // Verificar se há parcelas pagas
+      const parcelas = await api.despesas.parcelas(desp.id);
+      const hasPaid = parcelas.some(p => p.status === 'Pago');
+      
+      console.log(`[DEBUG] Despesa ${desp.id}: ${parcelas.length} parcelas, hasPaid: ${hasPaid}`);
+      if (parcelas.length > 0) {
+        console.log(`[DEBUG] Status das parcelas:`, parcelas.map(p => ({ id: p.id, numero: p.numero_parcela, status: p.status })));
+      }
+      
       // Formatar data para DD/MM/YYYY, removendo hora se necessário
       let dataFormatada = '-';
       if (desp.primeiro_vencimento) {
@@ -62,6 +81,15 @@ async function carregarDespesas() {
       }
       const nomeCategoria = mapIdNome[desp.id_categoria] || '-';
       const tr = document.createElement('tr');
+      
+      // Definir classe e atributos dos botões baseado no status
+      const editClass = hasPaid ? 'btn-edit edit-btn disabled' : 'btn-edit edit-btn';
+      const deleteClass = hasPaid ? 'btn-danger disabled' : 'btn-danger';
+      const editDisabled = hasPaid ? 'disabled' : '';
+      const deleteDisabled = hasPaid ? 'disabled' : '';
+      const editOnclick = hasPaid ? '' : `data-id="${desp.id}"`;
+      const deleteOnclick = hasPaid ? '' : `onclick="excluirDespesa(${desp.id})"`;
+      
       tr.innerHTML = `
         <td>${desp.descricao}</td>
         <td>${formatarValor(desp.valor_total)}</td>
@@ -72,8 +100,8 @@ async function carregarDespesas() {
         <td>${formatarValor(saldoPagar)}</td>
         <td>
           <button class="btn-info" onclick="verParcelas(${desp.id})"><i class="fa fa-list"></i></button>
-          <button class="btn-edit edit-btn" data-id="${desp.id}"><i class="fa fa-edit"></i></button>
-          <button class="btn-danger" onclick="excluirDespesa(${desp.id})"><i class="fa fa-trash"></i></button>
+          <button class="${editClass}" ${editOnclick} ${editDisabled}><i class="fa fa-edit"></i></button>
+          <button class="${deleteClass}" ${deleteOnclick} ${deleteDisabled}><i class="fa fa-trash"></i></button>
         </td>
       `;
       grid.appendChild(tr);
@@ -164,22 +192,33 @@ async function salvarDespesa(e) {
     return;
   }
 
-  // Envia para o backend
-  const body = {
-    descricao,
-    valor_total,
-    numero_parcelas,
-    primeiro_vencimento: primeiro_vencimento.split('-').reverse().join('/'),
-    id_categoria,
-    periodo
-  };
+  // Validação de duplicidade antes de enviar ao backend
   try {
+    const despesasExistentes = await api.despesas.listar();
+    const existeDuplicada = despesasExistentes.some(d =>
+      d.descricao.trim().toLowerCase() === descricao.toLowerCase() &&
+      String(d.id_categoria) === String(id_categoria) &&
+      String(d.periodo) === String(periodo)
+    );
+    if (existeDuplicada) {
+      erroDiv.textContent = 'Já existe uma despesa recorrente com esses dados.';
+      return;
+    }
+    // Envia para o backend
+    const body = {
+      descricao,
+      valor_total,
+      numero_parcelas,
+      primeiro_vencimento: primeiro_vencimento.split('-').reverse().join('/'),
+      id_categoria,
+      periodo
+    };
     await api.despesas.criar(body);
     fecharModalDespesa();
     carregarDespesas();
     showToast('Despesa salva com sucesso!', 'sucesso');
   } catch (err) {
-    erroDiv.textContent = 'Erro ao salvar despesa.';
+    erroDiv.textContent = err?.error || 'Erro ao salvar despesa.';
   }
 }
 window.verParcelas = async function(id) {

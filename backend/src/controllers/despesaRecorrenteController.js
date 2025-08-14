@@ -28,14 +28,22 @@ exports.criar = async (req, res, next) => {
     const { descricao, valor_total, numero_parcelas, primeiro_vencimento, id_categoria, periodo } = req.body;
     const [dia, mes, ano] = primeiro_vencimento.split('/');
     const dataISO = `${ano}-${mes}-${dia}`;
-    const despesa = await despesaRecorrenteModel.criar({ descricao, valor_total, numero_parcelas, primeiro_vencimento: dataISO, id_categoria, periodo, id_usuario: req.user.id });
+    let despesa;
+    try {
+      despesa = await despesaRecorrenteModel.criar({ descricao, valor_total, numero_parcelas, primeiro_vencimento: dataISO, id_categoria, periodo, id_usuario: req.user.id });
+    } catch (e) {
+      if (e.message && e.message.includes('Despesa recorrente já existe')) {
+        return res.status(400).json({ error: 'Já existe uma despesa recorrente com esses dados.' });
+      }
+      throw e;
+    }
     // Gerar parcelas conforme período
     const valorParcela = (Number(valor_total) / Number(numero_parcelas)).toFixed(2);
     const diasPeriodo = Number(periodo);
     let dataVenc = new Date(Date.UTC(Number(ano), Number(mes) - 1, Number(dia)));
     for (let i = 0; i < numero_parcelas; i++) {
       const vencStr = dataVenc.toISOString().slice(0, 10);
-      await parcelaModel.criar({ id_despesa_recorrente: despesa.id, data_vencimento: vencStr, valor: valorParcela });
+      await parcelaModel.criar({ id_despesa_recorrente: despesa.id, numero_parcela: i + 1, data_vencimento: vencStr, valor: valorParcela });
       dataVenc.setUTCDate(dataVenc.getUTCDate() + diasPeriodo);
     }
     res.status(201).json(despesa);
@@ -46,8 +54,13 @@ exports.criar = async (req, res, next) => {
 
 exports.deletar = async (req, res, next) => {
   try {
+    // Verifica se existe parcela paga
     const existePaga = await parcelaModel.existeParcelaPaga(req.params.id);
-    if (existePaga) return res.status(400).json({ error: 'Não é possível excluir: há parcelas pagas.' });
+    if (existePaga) {
+      return res.status(400).json({ error: 'Não é possível excluir: há parcelas pagas.' });
+    }
+    // Exclui todas as parcelas antes de excluir a despesa recorrente
+    await parcelaModel.excluirPorDespesa(req.params.id);
     await despesaRecorrenteModel.deletar(req.params.id, req.user.id);
     res.json({ ok: true });
   } catch (err) {
@@ -143,7 +156,7 @@ exports.recriarParcelas = async (req, res, next) => {
     let dataVenc = new Date(Date.UTC(pAno, pMes - 1, pDia));
     for (let i = 0; i < despesa.numero_parcelas; i++) {
       const vencStr = dataVenc.toISOString().slice(0, 10);
-      await parcelaModel.criar({ id_despesa_recorrente: id, data_vencimento: vencStr, valor: valorParcela });
+      await parcelaModel.criar({ id_despesa_recorrente: id, numero_parcela: i + 1, data_vencimento: vencStr, valor: valorParcela });
       dataVenc.setUTCDate(dataVenc.getUTCDate() + diasPeriodo);
     }
 

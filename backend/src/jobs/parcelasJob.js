@@ -27,12 +27,12 @@ async function inserirParcelasVencidas() {
     logger.info(`Encontradas ${parcelas.length} parcelas para inserir em operações`);
 
     for (const parcela of parcelas) {
-      // Inserir a parcela como operação de débito
+      // Inserir a parcela como operação de débito, incluindo o número da parcela
       await pool.query(`
         INSERT INTO operacoes (descricao, valor, data, tipo, id_categoria, id_usuario, id_parcela, status)
         VALUES (?, ?, ?, 'Débito', ?, ?, ?, 'Aberto')
       `, [
-        `${parcela.descricao} - Parcela ${parcela.id}`,
+        `${parcela.descricao} - Parcela ${parcela.numero_parcela}`,
         parcela.valor,
         hoje,
         parcela.id_categoria,
@@ -40,7 +40,7 @@ async function inserirParcelasVencidas() {
         parcela.id
       ]);
 
-      logger.info(`Parcela ${parcela.id} inserida em operações`);
+      logger.info(`Parcela ${parcela.id} (número ${parcela.numero_parcela}) inserida em operações`);
     }
 
     logger.info('Job de inserção de parcelas concluído com sucesso');

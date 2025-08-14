@@ -32,11 +32,11 @@ module.exports = {
     return rows[0];
   },
   
-  async criar({ data, descricao, id_categoria, valor, id_usuario }) {
-    logger.info('[OPERACAO] Criando operação', { data, descricao, id_categoria, valor, id_usuario });
-    const [result] = await pool.query('INSERT INTO operacoes (data, descricao, id_categoria, valor, id_usuario) VALUES (?, ?, ?, ?, ?)', [data, descricao, id_categoria, valor, id_usuario]);
-    logger.info('[OPERACAO] Operação criada', { id: result.insertId, data, descricao, id_categoria, valor, id_usuario });
-    return { id: result.insertId, data, descricao, id_categoria, valor, id_usuario };
+  async criar({ data, descricao, id_categoria, valor, id_usuario, id_parcela = null }) {
+    logger.info('[OPERACAO] Criando operação', { data, descricao, id_categoria, valor, id_usuario, id_parcela });
+    const [result] = await pool.query('INSERT INTO operacoes (data, descricao, id_categoria, valor, id_usuario, id_parcela) VALUES (?, ?, ?, ?, ?, ?)', [data, descricao, id_categoria, valor, id_usuario, id_parcela]);
+    logger.info('[OPERACAO] Operação criada', { id: result.insertId, data, descricao, id_categoria, valor, id_usuario, id_parcela });
+    return { id: result.insertId, data, descricao, id_categoria, valor, id_usuario, id_parcela };
   },
   
   async atualizar(id, { data, descricao, id_categoria, valor }, id_usuario) {
