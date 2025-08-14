@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('filtrarOperacoesBtn').addEventListener('click', filtrarOperacoes);
   document.getElementById('limparFiltrosBtn').addEventListener('click', limparFiltros);
   document.getElementById('importarParcelasBtn').addEventListener('click', importarParcelasProximas);
+  document.getElementById('gerarRelatorioBtn').addEventListener('click', gerarRelatorioOperacoes);
+});
+
 // Função para importar parcelas próximas do vencimento
 async function importarParcelasProximas() {
   const hoje = new Date();
@@ -29,7 +32,6 @@ async function importarParcelasProximas() {
     console.error('Erro ao importar parcelas:', err);
   }
 }
-});
 
 // Função para formatar data
 function formatarData(data) {
@@ -85,7 +87,7 @@ function criarLinhaOperacao(op, mapIdNome, mapCategoriaTipo) {
     <td><input type="checkbox" ${isPago ? 'checked' : ''} onclick="marcarPago(${op.id}, this.checked)"></td>
     <td>
       <button class="btn-editar-operacao${isPago ? ' btn-editar-desabilitado' : ''}" onclick="${isPago ? '' : `editarOperacao(${op.id})`}" ${isPago ? 'disabled' : ''}><i class="fa fa-edit"></i></button>
-      <button class="btn-danger" onclick="excluirOperacao(${op.id})"><i class="fa fa-trash"></i></button>
+      <button class="btn-danger${isPago ? ' btn-danger-desabilitado' : ''}" onclick="${isPago ? '' : `excluirOperacao(${op.id})`}" ${isPago ? 'disabled' : ''}><i class="fa fa-trash"></i></button>
     </td>
   `;
   grid.appendChild(tr);
@@ -291,14 +293,30 @@ window.editarOperacao = async function(id) {
 }
 // Confirmação visual antes de excluir
 window.excluirOperacao = async function(id) {
-  if (window.confirm('Tem certeza que deseja excluir esta operação? Esta ação não poderá ser desfeita.')) {
-    try {
+  // Primeiro verificar se a operação não está paga
+  try {
+    const operacoes = await api.operacoes.listar();
+    const operacao = operacoes.find(o => o.id === id);
+    
+    if (!operacao) {
+      showToast('Operação não encontrada.', 'erro');
+      return;
+    }
+    
+    const isPago = (operacao.status === 'Pago' || operacao.status === 'pago');
+    if (isPago) {
+      showToast('Não é possível excluir operações que já foram pagas.', 'erro');
+      return;
+    }
+    
+    if (window.confirm('Tem certeza que deseja excluir esta operação? Esta ação não poderá ser desfeita.')) {
       await api.operacoes.excluir(id);
       carregarOperacoes();
       showToast('Operação excluída!', 'sucesso');
-    } catch (err) {
-      showToast('Erro ao excluir operação.', 'erro');
     }
+  } catch (err) {
+    showToast('Erro ao excluir operação.', 'erro');
+    console.error('Erro ao excluir operação:', err);
   }
 }
 window.marcarPago = async function(id, checked, checkboxElement) {

@@ -27,6 +27,7 @@
       <div class="operacoes-header-btns">
         <button id="novaOperacaoBtn" class="btn-primary"><i class="fa-solid fa-plus"></i> Nova Operação</button>
         <button id="importarParcelasBtn" class="btn-importar"><i class="fa-solid fa-file-import"></i> Importar Parcelas Próximas</button>
+        <button id="gerarRelatorioBtn" class="btn-relatorio"><i class="fa-solid fa-file-pdf"></i> Gerar Relatório PDF</button>
       </div>
     </section>
     <section class="operacoes-filtros">
@@ -66,10 +67,23 @@
     </section>
   </main>
   <div id="modalOperacao" class="modal hidden"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" onload="console.log('jsPDF carregado')" onerror="console.error('Erro ao carregar jsPDF')"></script>
+  <script>
+    // Verificar se jsPDF carregou corretamente
+    window.addEventListener('load', function() {
+      console.log('Página carregada. jsPDF disponível:', typeof window.jsPDF);
+      if (typeof window.jsPDF !== 'undefined') {
+        console.log('jsPDF carregado com sucesso');
+      } else {
+        console.error('jsPDF não foi carregado');
+      }
+    });
+  </script>
   <script src="js/config.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/relatorios.js"></script>
   <script src="js/operacoes.js"></script>
 </body>
 </html>

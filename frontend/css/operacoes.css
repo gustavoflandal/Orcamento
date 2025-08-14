@@ -21,6 +21,13 @@
   cursor: not-allowed !important;
   border: none;
 }
+
+.btn-danger-desabilitado {
+  background-color: #bdbdbd !important;
+  color: #666 !important;
+  cursor: not-allowed !important;
+  border: none;
+}
 .operacoes-header-btns {
   display: flex;
   gap: 1rem;
@@ -43,6 +50,26 @@
 }
 .btn-importar:hover {
   background-color: #e0a800;
+}
+
+.btn-relatorio {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  transition: background 0.2s;
+}
+
+.btn-relatorio:hover {
+  background-color: #c82333;
 }
 .filtro-bloco {
   display: flex;

@@ -10,6 +10,32 @@
   gap: 1rem;
   justify-content: space-between;
 }
+
+.despesas-header-btns {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.btn-relatorio {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  transition: background 0.2s;
+}
+
+.btn-relatorio:hover {
+  background-color: #c82333;
+}
 .despesas-table {
   width: 100%;
   border-collapse: collapse;

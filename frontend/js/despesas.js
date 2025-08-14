@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const gerarBtn = document.getElementById('gerarParcelasBtn');
   if (gerarBtn) gerarBtn.addEventListener('click', simularJobDiario);
 
+  const gerarRelatorioBtn = document.getElementById('gerarRelatorioDespesasBtn');
+  if (gerarRelatorioBtn) gerarRelatorioBtn.addEventListener('click', gerarRelatorioDespesas);
+
   const gridEl = document.getElementById('despesasGrid');
   if (gridEl) {
     gridEl.addEventListener('click', async (e) => {
