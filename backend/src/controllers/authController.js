@@ -1,4 +1,5 @@
 const usuarioModel = require('../models/usuarioModel');
+const categoriaModel = require('../models/categoriaModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -21,6 +22,39 @@ exports.cadastro = async (req, res, next) => {
     const { email, login, senha } = req.body;
     const hash = await bcrypt.hash(senha, 10);
     const usuario = await usuarioModel.create({ email, login, senha: hash });
+    
+    // Criar categorias padrão para o novo usuário
+    try {
+      // Criar categoria Despesa
+      const despesa = await categoriaModel.criar({
+        nome: 'Despesa',
+        tipo: 'Débito',
+        cor: '#95a5a6',
+        id_categoria_pai: null,
+        id_usuario: usuario.id
+      });
+      
+      // Criar categoria Receita e definir como própria categoria pai
+      const pool = require('../config/db');
+      const [receitaResult] = await pool.query(
+        'INSERT INTO categorias (nome, tipo, cor, id_categoria_pai, id_usuario) VALUES (?, ?, ?, ?, ?)',
+        ['Receita', 'Crédito', '#95a5a6', null, usuario.id]
+      );
+      
+      // Atualizar a categoria Receita para ser própria categoria pai
+      await pool.query(
+        'UPDATE categorias SET id_categoria_pai = ? WHERE id = ?',
+        [receitaResult.insertId, receitaResult.insertId]
+      );
+      
+      console.log(`Categorias padrão criadas para o usuário ${usuario.login} (ID: ${usuario.id})`);
+      console.log(`- Despesa: ID=${despesa.id}, categoria_pai=${despesa.id_categoria_pai}`);
+      console.log(`- Receita: ID=${receitaResult.insertId}, categoria_pai=${receitaResult.insertId}`);
+    } catch (categoriaError) {
+      console.error('Erro ao criar categorias padrão:', categoriaError);
+      // Não interrompe o cadastro do usuário mesmo se houver erro nas categorias
+    }
+    
     res.status(201).json({ id: usuario.id, email: usuario.email, login: usuario.login });
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') {

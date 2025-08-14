@@ -21,6 +21,14 @@ async function executarMigracao() {
       AND column_name = 'id_parcela'
     `, [process.env.DB_NAME || 'orcamento']);
 
+    if (columns[0].count === 0) {
+      console.log('Adicionando coluna id_parcela...');
+      await connection.query(`
+        ALTER TABLE operacoes 
+        ADD COLUMN id_parcela INT NULL COMMENT 'Vincula operação a uma parcela específica'
+      `);
+      console.log('Coluna id_parcela adicionada com sucesso');
+
       // Verificar se a foreign key já existe
       const [constraints] = await connection.query(`
         SELECT COUNT(*) as count FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
